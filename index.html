@@ -155,7 +155,7 @@
         } )
             .then( response => response.json() )
             .then( data => {
-                document.getElementById( 'hash' ).value = data.data.token.hash;
+                document.getElementById( 'hash' ).value = data.data.tokens[0].hash;
             } );
     }, false );
     </script>
