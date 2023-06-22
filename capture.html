@@ -27,6 +27,26 @@
       const TOKEN_ID = params.get("tokenId");
       const HASH = params.get("hash");
       const VIDEO_DURATION_MS = params.get("duration-ms");
+      const RESOLUTION_TYPE = params.get("resolution");
+      var WIDTH, HEIGHT;
+      if (RESOLUTION_TYPE == "square") {
+        WIDTH = 1080;
+        HEIGHT = 1080;
+      } else if (RESOLUTION_TYPE == "io") {
+        WIDTH = 1024;
+        HEIGHT = 576;
+      } else if (RESOLUTION_TYPE == "4k") {
+        WIDTH = 3840;
+        HEIGHT = 2160;
+      } else if (RESOLUTION_TYPE == "8k") {
+        WIDTH = 7680;
+        HEIGHT = 4320;
+      } else {
+        // default to hd
+        WIDTH = 1920;
+        HEIGHT = 1080;
+      }
+      const PIXEL_DENSITY = parseFloat(params.get("pixel-density") || "2");
       // the frame rate
       var fps = 60;
 
@@ -398,8 +418,9 @@
       // base coordinate system is 1000 x 1000
       var BASE_SIZE = 1000;
       // translate to window size
-      var WIDTH = window.innerWidth;
-      var HEIGHT = window.innerHeight;
+      // use prescribed with and height when capturing video
+      // var WIDTH = window.innerWidth;
+      // var HEIGHT = window.innerHeight;
       var DIM = Math.min(WIDTH, HEIGHT);
       var S = DIM / BASE_SIZE;
       var SX = WIDTH / BASE_SIZE;
@@ -961,8 +982,8 @@
         screen.background(0);
         screen.stroke(255);
         screen.strokeWeight(M(CONFIG.particleStrokeWeight));
-        // set pixel density to display density for animated piece
-        let density = displayDensity();
+        // we use the prescribed pixel density when capturing video
+        let density = PIXEL_DENSITY;
         pixelDensity(density);
 
         // set active shader

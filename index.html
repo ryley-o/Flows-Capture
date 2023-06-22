@@ -118,7 +118,32 @@
             <small>Note: Token hash is pulled from the Art Blocks subgraph</small><br/><br/>
             <label for="duration-sec" >Duration, seconds</label><br/>
             <input type="duration-sec" name="duration-sec" id="duration-sec" value="3" ></input><br/>
-            <small>Note: I've generated up to 300 seconds, which took over 1 hour to generate on my macbook</small><br/><br/>
+            <small>Note: I've generated up to 300 seconds, which took over 1 hour to generate on my macbook</small><br/>
+			<br/>
+			Resolution
+			<div>
+				<input type="radio" id="hd" name="resolution" value="io" checked>
+				<label for="io">InfiniteObjects (1024x576)</label>
+				<input type="radio" id="hd" name="resolution" value="hd" checked>
+				<label for="hd">HD (1920x1080)</label>
+				<input type="radio" id="4k" name="resolution" value="4k">
+				<label for="4k">4K (3840x2160)</label>
+				<input type="radio" id="8k" name="resolution" value="8k">
+				<label for="8k">8K (7680x4320)</label>
+				<input type="radio" id="square" name="resolution" value="square">
+				<label for="square">Square (1080x1080)</label>
+			</div>
+			Pixel Density
+			<div>
+				<input type="radio" id="one" name="pixel-density" value="1">
+				<label for="one">1</label>
+				<input type="radio" id="two" name="pixel-density" value="2" checked>
+				<label for="two">2 (recommended)</label>
+				<input type="radio" id="three" name="pixel-density" value="3" checked>
+				<label for="three">3</label>
+			</div>
+
+			<br/>
 			<a class="button" href="#" id="start-capturing-button" >Start recording</a>
 		</div>
 
@@ -126,8 +151,9 @@
     var sCB = document.getElementById( 'start-capturing-button' )
 
 		sCB.addEventListener( 'click', function( e ) {
-
-			location.href = "./capture.html?hash=" + document.getElementById( 'hash' ).value + "&tokenId=" + document.getElementById( 'token-number' ).value + "&duration-ms=" + document.getElementById( 'duration-sec' ).value * 1000;
+			const resolution = document.querySelector('input[name="resolution"]:checked').value;
+			const pixelDensity = document.querySelector('input[name="pixel-density"]:checked').value;
+			location.href = "./capture.html?hash=" + document.getElementById( 'hash' ).value + "&tokenId=" + document.getElementById( 'token-number' ).value + "&duration-ms=" + document.getElementById( 'duration-sec' ).value * 1000 + "&resolution=" + resolution + "&pixel-density=" + pixelDensity;
         }, false );    
 
     var gTH = document.getElementById( 'getTokenHash' )
