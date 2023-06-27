@@ -21,6 +21,7 @@
     ><br />
     <br />
     <script type="text/javascript" src="./js/p5js.js"></script>
+    <script src="http://localhost:8080/ffmpegserver/ffmpegserver.min.js"></script>
     <script src="js/CCapture.all.min.js"></script>
     <script>
       const params = new URLSearchParams(window.location.search);
@@ -51,9 +52,18 @@
       var fps = 60;
 
       // the canvas capturer instance
+      // var capturer = new CCapture({
+      //   format: "webm",
+      //   framerate: 60,
+      //   name: `flows-${TOKEN_ID}-${VIDEO_DURATION_MS}s`,
+      // });
       var capturer = new CCapture({
-        format: "webm",
+        format: "ffmpegserver",
         framerate: 60,
+        verbose: true,
+        name: "sample",
+        extension: ".mp4",
+        codec: "mpeg4",
       });
       // inject token data
       var tokenData = {
@@ -1038,7 +1048,10 @@
           noLoop();
           console.log("finished recording.");
           capturer.stop();
-          capturer.save();
+          // capturer.save();
+          capturer.save(function (url, size) {
+            /* ... */
+          });
           return;
         }
 
