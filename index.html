@@ -119,6 +119,8 @@
             <label for="duration-sec" >Duration, seconds</label><br/>
             <input type="duration-sec" name="duration-sec" id="duration-sec" value="3" ></input><br/>
             <small>Note: I've generated up to 300 seconds, which took over 1 hour to generate on my macbook</small><br/>
+            <label for="start-time-sec" >Start offset, seconds</label><br/>
+            <input type="start-time-sec" name="start-time-sec" id="start-time-sec" value="0" ></input><br/><br/>
 			<br/>
 			Resolution
 			<div>
@@ -153,7 +155,7 @@
 		sCB.addEventListener( 'click', function( e ) {
 			const resolution = document.querySelector('input[name="resolution"]:checked').value;
 			const pixelDensity = document.querySelector('input[name="pixel-density"]:checked').value;
-			location.href = "./capture.html?hash=" + document.getElementById( 'hash' ).value + "&tokenId=" + document.getElementById( 'token-number' ).value + "&duration-ms=" + document.getElementById( 'duration-sec' ).value * 1000 + "&resolution=" + resolution + "&pixel-density=" + pixelDensity;
+			location.href = "./capture.html?hash=" + document.getElementById( 'hash' ).value + "&tokenId=" + document.getElementById( 'token-number' ).value + "&duration-ms=" + document.getElementById( 'duration-sec' ).value * 1000 + "&start-time-ms=" + document.getElementById( 'start-time-sec' ).value * 1000 + "&resolution=" + resolution + "&pixel-density=" + pixelDensity;
         }, false );    
 
     var gTH = document.getElementById( 'getTokenHash' )

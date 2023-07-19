@@ -28,6 +28,7 @@
       const TOKEN_ID = params.get("tokenId");
       const HASH = params.get("hash");
       const VIDEO_DURATION_MS = params.get("duration-ms");
+      const VIDEO_START_TIME_MS = params.get("start-time-ms");
       const RESOLUTION_TYPE = params.get("resolution");
       var WIDTH, HEIGHT;
       if (RESOLUTION_TYPE == "square") {
@@ -49,17 +50,13 @@
       }
       const PIXEL_DENSITY = parseFloat(params.get("pixel-density") || "2");
       // the frame rate
-      var fps = 60;
+      var fps = 30;
+      var captureStarted = false;
 
       // the canvas capturer instance
-      // var capturer = new CCapture({
-      //   format: "webm",
-      //   framerate: 60,
-      //   name: `flows-${TOKEN_ID}-${VIDEO_DURATION_MS}s`,
-      // });
       var capturer = new CCapture({
         format: "ffmpegserver",
-        framerate: 60,
+        framerate: 30,
         verbose: true,
         name: "sample",
         extension: ".mp4",
@@ -130,7 +127,7 @@
         attribute vec3 aPosition;
         attribute vec2 aTexCoord;
         varying vec2 pos;
-        
+
         void main() {
         // copy the texcoords
         pos = aTexCoord;
@@ -143,10 +140,10 @@
         #ifdef GL_ES
         precision highp float;
         #endif
-        
+
         varying vec2 pos;
         uniform sampler2D texture;
-        
+
         // multiplier to scale to screen size
         uniform vec2 M;
         // ratios of screen dims to base dims
@@ -156,7 +153,7 @@
         // screen values to calculate offsets later
         uniform float OFFSETX;
         uniform float OFFSETY;
-        
+
         // stream function
         uniform float psiMult;
         uniform float psiOffset;
@@ -165,21 +162,21 @@
         uniform float phiMult;
         uniform float phiOffset;
         uniform bool useVorticityInPhi;
-        
+
         const int maxElements = 14;
         uniform int activeElements;
         uniform float elementsX[14];
         uniform float elementsY[14];
         uniform float vortexStrengths[14];
         uniform float divergences[14];
-        
+
         uniform int paletteIndex;
         uniform bool limitHueMatlab;
-        
+
         uniform float hueStaticOffset;
         uniform bool migraine;
         uniform float saturation;
-        
+
         // gets stream and velocity potential function values
         // @dev all calculations in base coordinates
         vec2 getPsiPhi(vec2 bc) {
@@ -238,13 +235,13 @@
         // uniform flow not utilized in this project
         return sqrt(u * u + v * v);
         }
-        
+
         // standard shader rgb2hsv and hsv2rgb functions
         vec3 rgb2hsv(vec3 c) {
         vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
         vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
         vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
-        
+
         float d = q.x - min(q.w, q.y);
         float e = 1.0e-10;
         return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
@@ -254,7 +251,7 @@
         vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
         return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
         }
-        
+
         void main() {
         // get virtual screen texture at pos
         vec2 uv = pos;
@@ -266,12 +263,12 @@
         vec2 bc = vec2(ic);
         bc.x = bc.x - 0.5 - (OFFSETX / (Sxy.y)) + sin(noiseOffset) * noiseOffset;
         bc.y = bc.y + 0.5 - (OFFSETY / (Sxy.x)) + cos(noiseOffset) * noiseOffset;
-        
+
         // calculate stream function and velocity potential in base coordinates
         vec2 psiPhi = getPsiPhi(bc);
         float psi = psiPhi.x;
         float phi = psiPhi.y;
-        
+
         // initialize variables
         float i;
         float j;
@@ -411,7 +408,7 @@
         particleHSV.r = particleHSV.r * 0.666 / 0.500;
         particleColor = hsv2rgb(particleHSV);
         }
-        
+
         // DRAW
         if (screenCol.r < 0.05) {
         // DRAW FLOW FIELD
@@ -422,7 +419,7 @@
         }
         }
         `;
-      const TARGET_FRAME_RATE = 60;
+      const TARGET_FRAME_RATE = 30;
 
       // --- COORDINATE SYSTEMS ---
       // base coordinate system is 1000 x 1000
@@ -1025,13 +1022,6 @@
       // ccapture: need to subtract initial millis before first draw to begin at t=0
       var startMillis; // needed to subtract initial millis before first draw to begin at t=0.
       function draw() {
-        if (frameCount === 1) {
-          // start the recording on the first frame
-          // this avoids the code freeze which occurs if capturer.start is called
-          // in the setup, since v0.9 of p5.js
-          capturer.start();
-        }
-
         if (startMillis == null) {
           startMillis = millis();
         }
@@ -1040,7 +1030,7 @@
         var duration = VIDEO_DURATION_MS;
 
         // compute how far we are through the animation as a value between 0 and 1.
-        var elapsed = millis() - startMillis;
+        var elapsed = millis() - VIDEO_START_TIME_MS - startMillis;
         var t = map(elapsed, 0, duration, 0, 1);
 
         // if we have passed t=1 then end the animation.
@@ -1089,8 +1079,15 @@
         // end drawing code
 
         // handle saving the frame
-        console.log("capturing frame");
-        capturer.capture(document.getElementById("defaultCanvas0"));
+        if (t >= 0) {
+          if (!captureStarted) {
+            console.log("starting capture");
+            capturer.start();
+            captureStarted = true;
+          }
+          capturer.capture(document.getElementById("defaultCanvas0"));
+        } else {
+        }
       }
     </script>
   </body>
